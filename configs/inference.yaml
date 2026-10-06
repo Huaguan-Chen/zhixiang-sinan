@@ -1,0 +1,87 @@
+paths:
+  runtime_root: ../runtime
+  output_root: ../results
+domain:
+  h: 512
+  w: 512
+  lon_range:
+  - 113.96
+  - 119.08
+  lat_range:
+  - 37.34
+  - 42.46
+fixed_stations:
+  enabled: true
+  catalog: ../data/fixed_station_catalog.csv
+  unknown_active_station_policy: warn
+  assimilation_active_only: true
+radar:
+  raw_root: ../data/radar
+  data_pattern: '**/{ts}_data.npy'
+  mask_pattern: '**/{ts}_mask.npy'
+  interval_minutes: 6
+  past_len: 10
+  future_len: 30
+  raw_normalize_div: 800.0
+  echo_threshold: 0.01
+  apply_raw_radar_y_flip: true
+stage1:
+  base_checkpoint: ../weights/radar_base.pth
+  diffusion_new_checkpoint: ../weights/radar_diffusion_new.pth
+  diffusion_0_checkpoint: ../weights/radar_diffusion_zero.pth
+  anchor_time: '20230101_000000'
+  batch_size: 1
+  num_workers: 2
+  diff_threshold: 0.1
+  diff_min_size: 4
+station:
+  raw_root: ../data/stations
+  raw_patterns:
+  - '{YYYYMMDD}/cimiss{YYYYMMDDHHMM}.txt'
+  already_6min: false
+  max_interp_gap_min: 10
+  max_interp_gap_min_dense: 2
+  max_interp_gap_min_1h: 30
+  sparse_interval_threshold_min: 2.0
+  min_valid_minutes_6min: 4
+  min_valid_minutes_1h: 40
+  apply_rain_qc: false
+  qc_valid_min: 5.0
+model_a:
+  name: compact_lowresunet_residual
+  config: model_a.yaml
+  checkpoint: ../weights/station_a.pt
+model_b:
+  name: gsn10_direct_clamp
+  config: model_b.yaml
+  checkpoint: ../weights/station_b.pt
+assimilation:
+  method: radar_conditioned_model_ab_log_oi
+  min_stations: 5
+  sigmas_px:
+  - 4
+  - 12
+  - 32
+  bg_error_mm: 3.0
+  obs_error_mm: 1.0
+  blend_alpha: 1.0
+  max_increment_mm: 80.0
+  max_rain_mm: 300.0
+  dry_station_threshold_mm: 0.1
+  radar_support_threshold_mm: 0.5
+  false_alarm_bg_threshold_mm: 0.5
+  false_alarm_weight: 3.0
+  positive_margin_mm: 0.1
+  model_a_extreme_threshold_mm: 5.0
+  model_b_support_threshold_mm: 1.0
+  model_b_supported_weight: 0.2
+  model_b_max_weight: 0.35
+  model_b_excess_cap_mm: 3.0
+  model_b_dry_veto_weight: 0.3
+  ab_consensus_bonus: 0.1
+  ab_disagreement_scale_mm: 5.0
+  ab_disagreement_weight_floor: 0.35
+  positive_weight_floor: 0.1
+  radar_support_bonus: 0.65
+  supported_extreme_bonus: 0.25
+  cross_model_extreme_bonus: 0.2

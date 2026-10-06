@@ -1,0 +1,79 @@
+domain:
+  lon_min: 113.96
+  lon_max: 119.08
+  lat_min: 37.34
+  lat_max: 42.46
+  north_to_south_y: false
+data:
+  h: 512
+  w: 512
+  past_len: 10
+  future_len: 30
+  flip_pred_y: false
+  station_day_cache: 16
+  frame_cache_size: 16
+  grid_dtype: float16
+  compact_future_rain_only: true
+zr:
+  a: 200.0
+  b: 1.6
+  dbz_scale: 80.0
+  dbz_offset: 0.0
+  dbz_min: 0.0
+  dbz_max: 80.0
+  accum_minutes: 6.0
+dynamic_zr_correction:
+  enabled: true
+  clip_min: 0.65
+  clip_max: 1.35
+  min_valid_pairs: 30
+  min_station_sum_mm: 1.0
+  min_radar_sum_mm: 1.0
+  pair_min_station_mm: 0.02
+  pair_min_radar_mm: 0.02
+  lead_decay: false
+  tau_minutes: 60.0
+model:
+  base_channels: 48
+  depth: 4
+  blocks_per_level: 2
+  temporal_blocks: 2
+  temporal_start_level: 1
+  station_hidden: 128
+  lead_hidden: 64
+  point_hidden: 512
+  station_chunk_size: 1024
+  dropout: 0.05
+  rain_residual_scale: 0.15
+  rain_prior_kernel: 5
+  rain_refine_channels:
+  - 3
+  - 4
+  - 5
+  rain_refiner_base: 8
+  rain_refiner_dropout: 0.0
+  rain_refiner_lowres_size: 128
+  rain_refiner_lead_chunk: 2
+  prior_channels:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  rain_base_channel: 5
+  token_attn_dim: 256
+  token_attn_heads: 8
+  token_attn_ff_mult: 2.0
+  rain_residual_limit: 0.16
+  rain_softplus_beta: 200.0
+  nonnegative_output_indices:
+  - 1
+  - 13
+  - 14
+  nonnegative_softplus_beta: 200.0
+inference:
+  amp: true
+  amp_dtype: bf16
